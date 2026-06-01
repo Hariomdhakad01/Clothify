@@ -5,96 +5,116 @@ import { config } from "../config/config.js"
 import cookie from "cookie-parser"
 
 
-export async function register(req,res){
-    const{username, email, password} = req.body
 
-   const isUserExist =await userModel.findOne({
+async function sendTokenResponse(user, res, message){
+    const token  = jwt.sign({
+        id: user._id,
+    }, config.JWT_SECRET,
+     {expiresIn:"7d"})
+
+res.cookie("token",token)
+
+
+     res.status(200).json({
+    message,
+    success:true,
+    user:{
+        id:user._id,
+        username: user.username,
+        email:user.email,
+        role: user.role
+    }
+})
+
+}
+
+export async function register(req,res){
+    const{username, email, password,contact , isSeller} = req.body
+
+    try {
+         const isUserExist =await userModel.findOne({
     $or:[
-        {username},
+        {contact},
         {email}
     ]
    })
 
    if(isUserExist){
-    res.status(401).json({
-        message:"username or email already",
+    res.status(400).json({
+        message:"user with this email or contact already exist",
         success:false
     })
    }
-
-   const hashPass =await bcrypt.hash(password, 10)
    
 
    const user =await userModel.create({
     username,
     email,
-    password:hashPass
+    contact,
+    password,
+    role: isSeller ? "seller" : "user"
    })
 
-   const token = jwt.sign({
-    id:user._id,
-   },config.JWT_SECRET,
-{expiresIn:"7d"})
+   
+await sendTokenResponse(user, res, "User registered Successfully")
 
-res.cookie("token",token)
-
-res.status(200).json({
-    message:"user Registered Successfully",
-    success:true,
-    user:{
-        id:user._id,
-        username: user.username,
-        email:user.email
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({message: "Server error"});
+        
     }
-})
+  
 
 
 }
 
-export async function loginUser(req,res){
-    // const user = req.user
-    const {username , email, password} = req.body
+// export async function loginUser(req,res){
+//     // const user = req.user
+//     const {username , email, password} = req.body
 
-    const user =await userModel.findOne({
-        $or:[
-            {username},
-            {email}
-        ]
-    })
-    if(!user){
-        res.status(401).json({
-            message:"Unauthorized",
-            success:false
-        })     
-    }
+//     const user =await userModel.findOne({
+//         $or:[
+//             {contact},
+//             {email}
+//         ]
+//     })
+//     if(!user){
+//         res.status(401).json({
+//             message:"Unauthorized",
+//             success:false
+//         })     
+//     }
 
     // const hashedPass = await bcrypt.hash(password, 10)
 
-    const isPassValid = await bcrypt.compare(password, user.password)
+    // const isPassValid = await bcrypt.compare(password, user.password)
 
-    if(!isPassValid){
-        res.status(400).json({
-            message:"invalid password",
-            success:false
-        })
-    }
-
-    const token = jwt.sign({
-        id:user._id
-    },config.JWT_SECRET,
-{expiresIn:"1d"})
-
-res.cookie("token",token)
-
-res.status(200).json({
-    message:"user loggedin Successfully",
-    success:true,
-    user:{
-        id:user._id,
-        username:user.username,
-        email:user.email
-    }
-})
+    // if(!isPassValid){
+    //     res.status(400).json({
+    //         message:"invalid password",
+    //         success:false
+    //     })
+    // }
 
 
-}
+    // await sendTokenResponse(user)
+
+//     const token = jwt.sign({
+//         id:user._id
+//     },config.JWT_SECRET,
+// {expiresIn:"1d"})
+
+// res.cookie("token",token)
+
+// res.status(200).json({
+//     message:"user loggedin Successfully",
+//     success:true,
+//     user:{
+//         id:user._id,
+//         username:user.username,
+//         email:user.email
+//     }
+// })
+
+
+// }
