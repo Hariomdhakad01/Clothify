@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const authApiInstance = axios.create({
-    baseURL: "http://localhost:3000/api/auth",
+    baseURL: "/api/auth",
     withCredentials: true
 })
 
@@ -14,6 +14,25 @@ export async function register({username, email, contact, password, isSeller}){
         password,
         isSeller
     })
+
+    return response.data
+}
+
+export async function login({usernameOrEmail, password}){
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const isEmail = emailRegex.test(usernameOrEmail)
+    const payload = {password}
+
+    if(isEmail){
+        payload.email = usernameOrEmail
+    }
+    else{
+        payload.username = usernameOrEmail
+    }
+
+
+    const response = await authApiInstance.post("/login", payload )
 
     return response.data
 }
