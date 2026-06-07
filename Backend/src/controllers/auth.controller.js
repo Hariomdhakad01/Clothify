@@ -40,7 +40,7 @@ export async function register(req,res){
    })
 
    if(isUserExist){
-    res.status(400).json({
+    return res.status(400).json({
         message:"user with this email or contact already exist",
         success:false
     })
@@ -68,53 +68,33 @@ await sendTokenResponse(user, res, "User registered Successfully")
 
 }
 
-// export async function loginUser(req,res){
-//     // const user = req.user
-//     const {username , email, password} = req.body
+export async function login(req, res){
+    const {email, password, username} = req.body
 
-//     const user =await userModel.findOne({
-//         $or:[
-//             {contact},
-//             {email}
-//         ]
-//     })
-//     if(!user){
-//         res.status(401).json({
-//             message:"Unauthorized",
-//             success:false
-//         })     
-//     }
+    const user = await userModel.findOne({
 
-    // const hashedPass = await bcrypt.hash(password, 10)
+        $or: [
+            {email},
+            {username}
+        ]   
+})
 
-    // const isPassValid = await bcrypt.compare(password, user.password)
+if(!user){
+    return res.status(400).json({
+        message: "Invalid username or email",
+        success: false
+    })
+}
 
-    // if(!isPassValid){
-    //     res.status(400).json({
-    //         message:"invalid password",
-    //         success:false
-    //     })
-    // }
+const isMatch = await user.comparePassword(password);
 
+if(!isMatch){
+    return res.status(400).json({
+        message:"Invalid Password",
+        success: false
+    })
+}
 
-    // await sendTokenResponse(user)
+await sendTokenResponse(user, res, "User logged in Successfully")
 
-//     const token = jwt.sign({
-//         id:user._id
-//     },config.JWT_SECRET,
-// {expiresIn:"1d"})
-
-// res.cookie("token",token)
-
-// res.status(200).json({
-//     message:"user loggedin Successfully",
-//     success:true,
-//     user:{
-//         id:user._id,
-//         username:user.username,
-//         email:user.email
-//     }
-// })
-
-
-// }
+}
