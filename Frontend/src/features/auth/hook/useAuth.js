@@ -27,16 +27,41 @@ export const useAuth = ()=>{
         }
     }
     
-    async function handleLogin({ usernameOrEmail, password}){
+    /**
+     * Handles the user login process.
+     * Sets loading states, clears existing errors, sends authentication payload to API,
+     * updates the Redux store with the logged-in user details, and handles any errors.
+     * 
+     * @param {Object} credentials - The login credentials.
+     * @param {string} credentials.usernameOrEmail - The user's username or email.
+     * @param {string} credentials.password - The user's password.
+     */
+    async function handleLogin({ usernameOrEmail, password }){
+        // Start loading and clear any previous error in Redux store
+        dispatch(setLoading(true));
+        dispatch(setError(null));
 
-        const data = await login({usernameOrEmail, password})
-        dispatch(setUser(data.user))
+        try {
+            // Call the login API service
+            const data = await login({ usernameOrEmail, password });
+            // Save user details to Redux store on successful authentication
+            dispatch(setUser(data.user));
+            return data;
+        } catch (error) {
+            // Extract descriptive error message from server response or fallback to default
+            const message = error.response?.data?.message || error.response?.data?.errors?.[0]?.msg || "Login failed";
+            // Set the error message in Redux store to display in UI components
+            dispatch(setError(message));
+            // Re-throw to allow component-level handling
+            throw new Error(message, { cause: error });
+        } finally {
+            // Stop loading state regardless of outcome
+            dispatch(setLoading(false));
+        }
     }
 
-
-
-
-    return {handleRegister, user, loading, error, handleLogin}  
+    return { handleRegister, user, loading, error, handleLogin }  
 }
+
 
    
