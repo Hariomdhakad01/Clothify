@@ -1,51 +1,54 @@
 import React, { useState } from 'react'
-import { useNavigate} from "react-router";
+import { useNavigate, Link } from "react-router";
 import {useAuth} from "../hook/useAuth"
 import registerFashionModel from "../../../assets/register-fashion-model.png";
+import ContinueWithGoogle from '../components/ContinueWithGoogle';
 
 
 
 const Register = () => {
-
-  const {handleRegister,loading, error} = useAuth();
+  // Extract handleRegister action, loading state, and error message from useAuth hook
+  const { handleRegister, loading, error } = useAuth();
   const navigate = useNavigate();
 
-const [formData, setFormData] = useState({
-  username: '',
-  contact: '',
-  email: '',
-  password:'',
-  isSeller: false
-});
-
-const handleChange = (e) =>{
-  const {name, value, type, checked} = e.target;
-  setFormData((prev) => ({ 
-    ...prev,
-     [name]: type === 'checkbox' ? checked : value,
-    }));
-};
-
-const handleSubmit = async (e)=>{
-  e.preventDefault();
-
-  try {
-    await handleRegister({
-    email: formData.email,
-    contact: formData.contact,
-    username: formData.username,
-    password: formData.password,
-    isSeller: formData.isSeller
+  // Local state to store user details for registration
+  const [formData, setFormData] = useState({
+    username: '',
+    contact: '',
+    email: '',
+    password: '',
+    isSeller: false
   });
-  navigate("/")
-    
-  } catch (error) {
-    console.error("Registration Failed", error)
-    
-  }
-  
 
-}
+  // Handle inputs dynamically (including checkboxes for seller status)
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({ 
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+  };
+
+  // Process registration form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      // Dispatch registration request via auth hook
+      await handleRegister({
+        email: formData.email,
+        contact: formData.contact,
+        username: formData.username,
+        password: formData.password,
+        isSeller: formData.isSeller
+      });
+      // Redirect to homepage on successful registration
+      navigate("/login");
+    } catch (error) {
+      // Errors are caught here for logging; UI renders them using hook state
+      console.error("Registration Failed", error);
+    }
+  };
 
 
   return (
@@ -120,7 +123,8 @@ const handleSubmit = async (e)=>{
                 <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#d7b270]">
                   Register
                 </p>
-                <h2 className="mt-2 text-3xl font-semibold text-[#201b17]">
+                {/* Changed heading text color to #fff8ec for high contrast readability against the dark card background */}
+                <h2 className="mt-2 text-3xl font-semibold text-[#fff8ec]">
                   Open your account
                 </h2>
               </div>
@@ -212,14 +216,28 @@ const handleSubmit = async (e)=>{
                   </p>
                 )} */}
 
+                {/* Submit button for creating an account */}
                 <button
                   type="submit"
                   disabled={loading}
-                  className="h-12 w-full rounded-[8px] bg-[#ffff] px-5 text-sm font-semibold uppercase tracking-[0.16em] text-[#201b17] transition hover:bg-[#fff8ec] disabled:cursor-not-allowed disabled:bg-[#8d8175]"
+                  className="h-12 w-full rounded-[8px] bg-[#ffff] px-5  text-sm font-semibold uppercase tracking-[0.16em] text-[#201b17] transition hover:bg-[#fff8ec] disabled:cursor-not-allowed disabled:bg-[#8d8175]"
                 >
                   {loading ? 'Creating account...' : 'Create account'}
                 </button>
               </form>
+
+              
+
+              {/* Navigation Link to toggle to the Login page */}
+              <div className="mt-6 text-center">
+                <ContinueWithGoogle/>
+                <p className="text-sm text-[#dfd2bf] mt-5">
+                  Already have an account?{' '}
+                  <Link to="/login" className="font-semibold text-[#d7b270] hover:text-[#f0d89f] transition duration-150 ease-in-out">
+                    Login here
+                  </Link>
+                </p>
+              </div>
             </div>
           </div>
         </section>
