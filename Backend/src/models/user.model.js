@@ -26,8 +26,8 @@ const userSchema = new mongoose.Schema({
     },
     role:{
         type:String,
-        enum:["seller", "user"],
-        default: "user",
+        enum:["seller", "buyer"],
+        default: "buyer",
     },
     googleId:{
         type:String,

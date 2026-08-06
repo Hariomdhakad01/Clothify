@@ -1,5 +1,5 @@
-import {setUser, setLoading, setError} from "../state/auth.slice.js";
-import { register, login } from "../service/auth.api.js";
+import {setUser, setLoading, setError, setAuthChecked} from "../state/auth.slice.js";
+import { register, login, getMe } from "../service/auth.api.js";
 import { useDispatch, useSelector} from "react-redux";
 
 
@@ -17,6 +17,7 @@ export const useAuth = ()=>{
         try {
             const data  = await register({ email, contact, username, password, isSeller });
             dispatch(setUser(data.user))
+            dispatch(setAuthChecked(true))
             return data
         } catch (error) {
             const message = error.response?.data?.message || error.response?.data?.errors?.[0]?.msg || "Registration failed"
@@ -46,6 +47,7 @@ export const useAuth = ()=>{
             const data = await login({ usernameOrEmail, password });
             // Save user details to Redux store on successful authentication
             dispatch(setUser(data.user));
+            dispatch(setAuthChecked(true));
             return data;
         } catch (error) {
             // Extract descriptive error message from server response or fallback to default
@@ -60,7 +62,27 @@ export const useAuth = ()=>{
         }
     }
 
-    return { handleRegister, user, loading, error, handleLogin }  
+
+    async function handleGetMe(){
+
+        try {
+             dispatch(setLoading(true))
+             const data = await getMe()
+             dispatch(setUser(data.user))
+             dispatch(setAuthChecked(true))
+        } catch (error) {
+            dispatch(setUser(null))
+            console.log(error)
+            
+        }
+       finally{
+            dispatch(setAuthChecked(true))
+            dispatch(setLoading(false))
+       }
+
+    }
+
+    return { handleRegister, user, loading, error, handleLogin, handleGetMe }  
 }
 
 

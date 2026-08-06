@@ -30,12 +30,12 @@ const Login = () => {
 
     try {
       // Dispatch login request using useAuth hook
-      await handleLogin({
+      const data = await handleLogin({
         usernameOrEmail: formData.usernameOrEmail,
         password: formData.password,
       });
-      // Redirect to homepage on successful login
-      navigate("/");
+      // Redirect based on the authenticated user's role
+      navigate(data.user.role === "seller" ? "/seller/dashboard" : "/");
     } catch (error) {
       // Errors are logged, while Redux hooks manage displaying them in the UI via the error state
       console.error("Login Failed:", error);
