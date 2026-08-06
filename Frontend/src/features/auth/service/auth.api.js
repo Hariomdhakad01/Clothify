@@ -36,3 +36,10 @@ export async function login({usernameOrEmail, password}){
 
     return response.data
 }
+
+export async function getMe(){
+    const response = await authApiInstance.get("/me")
+
+    return response.data
+
+}

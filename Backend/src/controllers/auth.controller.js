@@ -34,14 +34,14 @@ export async function register(req,res){
     try {
          const isUserExist =await userModel.findOne({
     $or:[
-        {contact},
+        {username},
         {email}
     ]
    })
 
    if(isUserExist){
     return res.status(400).json({
-        message:"user with this email or contact already exist",
+        message:"user with this email or username already exist",
         success:false
     })
    }
@@ -52,7 +52,7 @@ export async function register(req,res){
     email,
     contact,
     password,
-    role: isSeller ? "seller" : "user"
+    role: isSeller ? "seller" : "buyer"
    })
 
    
@@ -133,4 +133,21 @@ export async function googleCallback(req, res){
     res.redirect("http://localhost:5173/")
 
     
+}
+
+export async function getMe(req, res){
+
+    const user = req.user;
+
+    res.status(200).json({
+        message: "User fetched Successfully",
+        success: true,
+        user:{
+            id: user._id,
+            email: user.email,
+            contact: user.contact,
+            username: user.username,
+            role: user.role
+        }
+    })
 }

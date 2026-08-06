@@ -1,6 +1,6 @@
 import express from "express";
 import { authenticateSeller } from "../middlewares/auth.middleware.js";
-import { createProduct, getSellerProducts } from "../controllers/product.controller.js";
+import { createProduct, getAllProducts, getSellerProducts } from "../controllers/product.controller.js";
 import multer from "multer";
 import { createProductValidator } from "../validator/product.validator.js";
 
@@ -13,9 +13,21 @@ const upload = multer({
 
 const prodRouter = express.Router()
 
-prodRouter.post("/",authenticateSeller,createProductValidator,upload.array('images', 7),createProduct)
-
+prodRouter.post("/",authenticateSeller,upload.array('images', 7),createProductValidator,createProduct)
+/**
+ * @route GET /api/products/seller
+ * @description Get all products of the authenticated seller
+ * @access Private (Seller Only)
+ */
 prodRouter.get("/seller", authenticateSeller, getSellerProducts)
 
+/**
+ * @route GET /api/products
+ * @description Get all products 
+ * @access Public
+ */
 
+prodRouter.get("/", getAllProducts)
+
+ 
 export default prodRouter;

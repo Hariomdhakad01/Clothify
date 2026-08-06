@@ -1,8 +1,9 @@
 import express from "express";
-import {  register, login, googleCallback } from "../controllers/auth.controller.js";
+import {  register, login, googleCallback, getMe } from "../controllers/auth.controller.js";
 import { registerValidationRules, loginValidationRules} from "../validator/auth.validator.js";
 import passport from "passport";
 import {config} from "../config/config.js"
+import { authenticateUser } from "../middlewares/auth.middleware.js";
 
 const authRouter = express.Router()
 
@@ -17,5 +18,9 @@ authRouter.get("/google/callback", passport.authenticate("google", {
     failureRedirect:config.NODE_ENV==="development"? "http://localhost:5173/login": "/login"}),
 
 googleCallback)
+
+
+authRouter.get("/me",authenticateUser, getMe)
+
 
 export default authRouter;
