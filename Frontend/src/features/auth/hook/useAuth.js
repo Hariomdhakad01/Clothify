@@ -1,12 +1,11 @@
 import {setUser, setLoading, setError, setAuthChecked} from "../state/auth.slice.js";
-import { register, login, getMe } from "../service/auth.api.js";
+import { register, login, getMe, logout } from "../service/auth.api.js";
 import { useDispatch, useSelector} from "react-redux";
-
 
 export const useAuth = ()=>{
     const dispatch = useDispatch()
 
-    const {user, loading, error} = useSelector(
+    const {user, loading, error, authChecked} = useSelector(
         (state) => state.auth
     );
 
@@ -20,7 +19,7 @@ export const useAuth = ()=>{
             dispatch(setAuthChecked(true))
             return data
         } catch (error) {
-            const message = error.response?.data?.message || error.response?.data?.errors?.[0]?.msg || "Registration failed"
+            const message = error.response?.data?.errors?.[0]?.msg || error.response?.data?.message || "Registration failed"
             dispatch(setError(message))
             throw new Error(message, { cause: error })
         } finally {
@@ -28,43 +27,25 @@ export const useAuth = ()=>{
         }
     }
     
-    /**
-     * Handles the user login process.
-     * Sets loading states, clears existing errors, sends authentication payload to API,
-     * updates the Redux store with the logged-in user details, and handles any errors.
-     * 
-     * @param {Object} credentials - The login credentials.
-     * @param {string} credentials.usernameOrEmail - The user's username or email.
-     * @param {string} credentials.password - The user's password.
-     */
     async function handleLogin({ usernameOrEmail, password }){
-        // Start loading and clear any previous error in Redux store
         dispatch(setLoading(true));
         dispatch(setError(null));
 
         try {
-            // Call the login API service
             const data = await login({ usernameOrEmail, password });
-            // Save user details to Redux store on successful authentication
             dispatch(setUser(data.user));
             dispatch(setAuthChecked(true));
             return data;
         } catch (error) {
-            // Extract descriptive error message from server response or fallback to default
-            const message = error.response?.data?.message || error.response?.data?.errors?.[0]?.msg || "Login failed";
-            // Set the error message in Redux store to display in UI components
+            const message = error.response?.data?.errors?.[0]?.msg || error.response?.data?.message || "Login failed";
             dispatch(setError(message));
-            // Re-throw to allow component-level handling
             throw new Error(message, { cause: error });
         } finally {
-            // Stop loading state regardless of outcome
             dispatch(setLoading(false));
         }
     }
 
-
     async function handleGetMe(){
-
         try {
              dispatch(setLoading(true))
              const data = await getMe()
@@ -73,17 +54,19 @@ export const useAuth = ()=>{
         } catch (error) {
             dispatch(setUser(null))
             console.log(error)
-            
         }
        finally{
             dispatch(setAuthChecked(true))
             dispatch(setLoading(false))
        }
-
     }
 
-    return { handleRegister, user, loading, error, handleLogin, handleGetMe }  
+    async function handleLogout(){
+        await logout()
+        dispatch(setUser(null))
+        dispatch(setAuthChecked(true))
+    }
+
+    return { handleRegister, user, loading, error, authChecked, handleLogin, handleGetMe, handleLogout }  
 }
 
-
-   
