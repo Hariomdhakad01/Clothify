@@ -1,7 +1,6 @@
 import mongoose from "mongoose"
 import bcrypt from "bcrypt";
 
-
 const userSchema = new mongoose.Schema({
     username:{
         type:String,
@@ -16,7 +15,8 @@ const userSchema = new mongoose.Schema({
     contact:{
         type:String,
         required: false,
-        unique: true
+        unique: true,
+        sparse: true
     },
      password:{
         type:String,
@@ -31,12 +31,11 @@ const userSchema = new mongoose.Schema({
     },
     googleId:{
         type:String,
-
     }
 
-})
+}, {timestamps: true})
 userSchema.pre("save", async function (){
-    if(!this.isModified("password")) return;
+    if(!this.isModified("password") || !this.password) return;
 
     const hash = await bcrypt.hash(this.password, 10);
     this.password = hash

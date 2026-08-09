@@ -175,7 +175,7 @@ const Register = () => {
                 </label>
 
                 <label className="block">
-                  <span className="mb-2 block text-sm font-medium text-[#dfd2bf]">Password</span>
+                  <span className="mb-2 block text-sm font-medium text-[#dfd2bf]">Password</span><span className="mb-2 block text-xs text-[#bfb2a4]">Use at least 6 characters.</span>
                   <input
                     name="password"
                     type="password"
@@ -247,3 +247,4 @@ const Register = () => {
 }
 
 export default Register
+

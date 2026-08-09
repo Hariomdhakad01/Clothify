@@ -5,7 +5,8 @@ function validateRequest(req, res, next){
 
     if(!errors.isEmpty()){
         return res.status(400).json({message: "Validation error",
-            errors: errors.array()
+            errors: errors.array(),
+            success: false,
         })
     }
     next();
@@ -13,7 +14,7 @@ function validateRequest(req, res, next){
 export const createProductValidator = [
     body("title").notEmpty().withMessage("Title is required"),
     body("description").notEmpty().withMessage("Description is required"),
-    body("priceAmount").isNumeric().withMessage("price amount is required"),
-    body("priceCurrency").notEmpty().withMessage("price currency is required"),
+    body("priceAmount").isFloat({ min: 1 }).withMessage("price amount is required"),
+    body("priceCurrency").isIn(["USD", "INR", "EUR", "JPY", "GBP"]).withMessage("valid price currency is required"),
     validateRequest
 ]

@@ -14,6 +14,7 @@ const Login = () => {
     usernameOrEmail: '',
     password: ''
   });
+  const [localError, setLocalError] = useState('');
 
   // Handle updates to input fields dynamically
   const handleChange = (e) => {
@@ -27,11 +28,18 @@ const Login = () => {
   // Process form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLocalError('');
+
+    const input = formData.usernameOrEmail.trim();
+    if (/^\d{10}$/.test(input)) {
+      setLocalError("Login with contact number is not supported. Please use username or email.");
+      return;
+    }
 
     try {
       // Dispatch login request using useAuth hook
       const data = await handleLogin({
-        usernameOrEmail: formData.usernameOrEmail,
+        usernameOrEmail: input,
         password: formData.password,
       });
       // Redirect based on the authenticated user's role
@@ -161,10 +169,10 @@ const Login = () => {
                   />
                 </label>
 
-                {/* Error Banner - Displayed if Redux auth state contains error */}
-                {error && (
+                {/* Error Banner - Displayed if there is a local or Redux auth error */}
+                {(localError || error) && (
                   <p className="rounded-[8px] border border-[#d9998f] bg-[#fff1ef] px-4 py-3 text-sm font-medium text-[#9d3328]">
-                    {error}
+                    {localError || error}
                   </p>
                 )}
 

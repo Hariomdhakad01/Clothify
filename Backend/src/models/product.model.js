@@ -17,11 +17,12 @@ const productSchema = new mongoose.Schema({
     price: {
         amount: {
             type: Number,
-            required: true
+            required: true,
+            min: 1
         },
         currency: {
             type:String,
-            enum:["USD", "INR", "EUR", "JYP", "GBP"],
+            enum:["USD", "INR", "EUR", "JPY", "GBP"],
             default: "INR"
         }
     },
@@ -31,7 +32,31 @@ const productSchema = new mongoose.Schema({
                 type: String,
                 required: true
             }
-           
+        }
+    ],
+    variants: [
+        {
+            attributes: {
+                type: Map,
+                of: String
+            },
+            stock: {
+                type: Number,
+                required: true,
+                default: 0
+            },
+            price: {
+                type: Number,
+                required: false
+            },
+            images: [
+                {
+                    url: {
+                        type: String,
+                        required: true
+                    }
+                }
+            ]
         }
     ]
 }, {timestamps: true})
