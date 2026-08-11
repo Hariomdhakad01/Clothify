@@ -3,7 +3,11 @@ import dns from "dns";
 import { config } from "./src/config/config.js";
 import { connectDB } from "./src/config/db.js";
 
-dns.setServers(["1.1.1.1", "8.8.8.8"]);
+try {
+    dns.setServers(["1.1.1.1", "8.8.8.8"]);
+} catch (error) {
+    console.warn("Failed to set DNS servers, using default:", error.message);
+}
 
 connectDB()
 
