@@ -43,7 +43,7 @@ const Register = () => {
         isSeller: formData.isSeller
       });
       // Redirect to homepage on successful registration
-      navigate("/login");
+      navigate("/");
     } catch (error) {
       // Errors are caught here for logging; UI renders them using hook state
       console.error("Registration Failed", error);
