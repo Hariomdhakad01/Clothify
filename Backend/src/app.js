@@ -19,8 +19,21 @@ const __dirname = path.dirname(__filename)
 app.use(express.json())
 app.use(morgan("dev"))
 app.use(cookieParser())
+const allowedOrigins = [
+    config.CLIENT_URL,
+    config.CLIENT_URL ? config.CLIENT_URL.replace(/\/$/, "") : "",
+    "http://localhost:5174",
+    "http://localhost:5173"
+].filter(Boolean);
+
 app.use(cors({
-    origin: config.CLIENT_URL,
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     methods:["GET", "POST", "PUT", "DELETE"],
     credentials: true
 }))

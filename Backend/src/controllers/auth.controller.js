@@ -63,7 +63,11 @@ export async function register(req,res){
         await sendTokenResponse(user, res, "User registered Successfully")
     } catch (error) {
         console.log(error)
-        return res.status(500).json({message: "Server error", success: false});
+        return res.status(500).json({
+            message: error.message || "Server error", 
+            success: false,
+            stack: error.stack
+        });
     }
 }
 
